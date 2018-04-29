@@ -12,11 +12,9 @@ import UIKit
 class ToDoListViewController: UITableViewController
 {
     // % % % % % % % % % % % % % % % %
-    //var itemArray = ["Get Milk", "Complete IOS Todoey", "Complete Perspective", "Wash Dishes" ];
-    
     var itemArray = [ToDoItem]();
     
-    let defaults = UserDefaults.standard;
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist") ;
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     override func viewDidLoad()
@@ -24,33 +22,16 @@ class ToDoListViewController: UITableViewController
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
 
-        itemArray.append(ToDoItem (text: "Save the world"));
-        itemArray.append(ToDoItem (text: "Eat SPinach"));
-        itemArray.append(ToDoItem (text: "Cook Zuchini"));
-        itemArray.append(ToDoItem (text: "Go Gym"));
-        itemArray.append(ToDoItem (text: "Eat Pizza"));
-        itemArray.append(ToDoItem (text: "Wash Dishes"));
+//        itemArray.append(ToDoItem (text: "Save the world"));
+//        itemArray.append(ToDoItem (text: "Eat SPinach"));
+//        itemArray.append(ToDoItem (text: "Cook Zuchini"));
+//        itemArray.append(ToDoItem (text: "Go Gym"));
+//        itemArray.append(ToDoItem (text: "Eat Pizza"));
+//        itemArray.append(ToDoItem (text: "Wash Dishes"));
         
-        itemArray.append(ToDoItem (text: "aaa"));
-        itemArray.append(ToDoItem (text: "bbb"));
-        itemArray.append(ToDoItem (text: "ccc"));
-        itemArray.append(ToDoItem (text: "ddd"));
-        itemArray.append(ToDoItem (text: "eee"));
-        itemArray.append(ToDoItem (text: "fff"));
-            
-        itemArray.append(ToDoItem (text: "ggg"));
-        itemArray.append(ToDoItem (text: "hhh"));
-        itemArray.append(ToDoItem (text: "iii"));
-        itemArray.append(ToDoItem (text: "jjj"));
-        itemArray.append(ToDoItem (text: "kkk"));
-        itemArray.append(ToDoItem (text: "lll"));
-            
-        //if let retreivedItems = defaults.array(forKey: "ToDoListArray") as? [ToDoItem]
-         //{ itemArray = retreivedItems; }
+        //print (dataFilePath) ;
         
-        //if let items = defaults.array(forKey: "ToDoListArray") as? [String]
-        //{ itemArray = items; }
-        
+        loadItems();
     }
 
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
@@ -71,7 +52,6 @@ class ToDoListViewController: UITableViewController
         
         //if (currentItem.completed == true)  { cell.accessoryType = .checkmark}
         //else {  cell.accessoryType = .none  }
-        
         cell.accessoryType = currentItem.completed ? .checkmark: .none;
         
         return cell;
@@ -87,31 +67,20 @@ class ToDoListViewController: UITableViewController
      // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
-        print(itemArray[indexPath.row]);
+        //print(itemArray[indexPath.row]);
         
         let currentItem = self.itemArray[indexPath.row];
         
         currentItem.completed = !(currentItem.completed);
-      
         
-//        if ( currentItem.completed == true)
-//        {
-//             currentItem.completed = false;
-//            tableView.cellForRow(at: indexPath)?.accessoryType = .none;
-//        }
-//        else
-//        {
-//            currentItem.completed = true;
-//              tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark;
-//        }
-        
-        self.tableView.reloadData();
+         saveItems();
         tableView.deselectRow(at: indexPath, animated: true);
     }
     
     
  //MARK - add new item
     
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem)
     {
         var textField = UITextField();
@@ -124,11 +93,8 @@ class ToDoListViewController: UITableViewController
             
             let newItem = ToDoItem (text: textField.text!);
             self.itemArray.append(newItem);
-            
-            
-            //self.defaults.set(self.itemArray, forKey: "ToDoListArray");
-           self.tableView.reloadData();
-       
+        
+            self.saveItems();
         }
         
         alert.addTextField
@@ -143,5 +109,39 @@ class ToDoListViewController: UITableViewController
         
     }
     
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    func saveItems()
+    {
+        let encoder = PropertyListEncoder();
+        
+        do
+        {
+            let data = try encoder.encode(itemArray);
+            try data.write(to: dataFilePath!);
+        }
+        catch
+        {
+            print ("error encoding item array, \(error)");
+        }
+    
+        self.tableView.reloadData();
+    }
+    
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    func loadItems()
+    {
+        if let data = try? Data(contentsOf: dataFilePath!)
+        {
+            let decoder = PropertyListDecoder();
+            do
+            {
+                itemArray = try decoder.decode([ToDoItem].self, from: data);
+            }
+            catch
+            {
+                print ("error decoding item array, \(error)");
+            }
+        }
+    }
 }// * * * * * * * * * * * *  end class
 

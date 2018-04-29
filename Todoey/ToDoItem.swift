@@ -8,17 +8,18 @@
 
 import Foundation
 
-class ToDoItem
+// * * * * * * * * * * * * * *  begin class
+class ToDoItem : Encodable, Decodable
 {
     var name = "" ;
     var completed: Bool = false;
     
+    // + - + - + - + - + - + - + - + - +
     init(text:String)
     {
         name = text;
     }
-}
-
+} // * * * * * * * * * end class
 
 
 
