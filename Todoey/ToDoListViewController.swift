@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CoreData
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * begin class
 class ToDoListViewController: UITableViewController
@@ -14,21 +16,15 @@ class ToDoListViewController: UITableViewController
     // % % % % % % % % % % % % % % % %
     var itemArray = [ToDoItem]();
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist") ;
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+
+    let dataContext =  (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext ;
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-
-//        itemArray.append(ToDoItem (text: "Save the world"));
-//        itemArray.append(ToDoItem (text: "Eat SPinach"));
-//        itemArray.append(ToDoItem (text: "Cook Zuchini"));
-//        itemArray.append(ToDoItem (text: "Go Gym"));
-//        itemArray.append(ToDoItem (text: "Eat Pizza"));
-//        itemArray.append(ToDoItem (text: "Wash Dishes"));
-        
+       
         //print (dataFilePath) ;
         
         loadItems();
@@ -40,15 +36,19 @@ class ToDoListViewController: UITableViewController
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    //MARK - tableView DataSource Methods
-    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    
+    ////////////////////////////////////////////////
+    //MARK: - tableView DataSource Methods
+    ////////////////////////////////////////////////
+    
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + - cellForRowAt
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        
         let currentItem = itemArray[indexPath.row];
             
-        cell.textLabel?.text = currentItem.name;
+        cell.textLabel?.text = currentItem.title;
         
         //if (currentItem.completed == true)  { cell.accessoryType = .checkmark}
         //else {  cell.accessoryType = .none  }
@@ -57,28 +57,34 @@ class ToDoListViewController: UITableViewController
         return cell;
     }
     
-   // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+   // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + - numberOfRowsInSection
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
         return itemArray.count;
     }
-  
-    //MARK - tableView Delegate Methods
-     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    
+    ////////////////////////////////////////////////
+    //MARK: - tableView Delegate Methods
+    ////////////////////////////////////////////////
+    
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + - didSelectRowAt
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
-        //print(itemArray[indexPath.row]);
-        
         let currentItem = self.itemArray[indexPath.row];
         
         currentItem.completed = !(currentItem.completed);
         
-         saveItems();
+        // code for delete
+        //dataContext.delete(currentItem)
+        //itemArray.remove(at: indexPath.row);
+        
+        saveItems();
         tableView.deselectRow(at: indexPath, animated: true);
     }
     
-    
- //MARK - add new item
+    ////////////////////////////////////////////////
+    //MARK: - add new item
+    ////////////////////////////////////////////////
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem)
@@ -91,7 +97,12 @@ class ToDoListViewController: UITableViewController
         {  (action) in
             
             
-            let newItem = ToDoItem (text: textField.text!);
+            
+            let newItem = ToDoItem(context: self.dataContext);
+            
+            newItem.title = textField.text! ;
+            newItem.completed = false ;
+            
             self.itemArray.append(newItem);
         
             self.saveItems();
@@ -109,39 +120,38 @@ class ToDoListViewController: UITableViewController
         
     }
     
+    ////////////////////////////////////////////////
+    //MARK: - Save and load Items
+    ////////////////////////////////////////////////
+    
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     func saveItems()
     {
-        let encoder = PropertyListEncoder();
-        
         do
         {
-            let data = try encoder.encode(itemArray);
-            try data.write(to: dataFilePath!);
+            try dataContext.save() ;
         }
         catch
         {
-            print ("error encoding item array, \(error)");
+            print ("error saving context, \(error)");
         }
-    
         self.tableView.reloadData();
     }
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     func loadItems()
     {
-        if let data = try? Data(contentsOf: dataFilePath!)
+        let request : NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest();
+        do
         {
-            let decoder = PropertyListDecoder();
-            do
-            {
-                itemArray = try decoder.decode([ToDoItem].self, from: data);
-            }
-            catch
-            {
-                print ("error decoding item array, \(error)");
-            }
+            itemArray = try dataContext.fetch(request);
         }
+        catch
+        {
+            print ("error loading from the context , \(error)");
+        }
+    
     }
+    
 }// * * * * * * * * * * * *  end class
 
