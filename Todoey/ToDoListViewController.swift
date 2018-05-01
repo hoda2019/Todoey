@@ -96,8 +96,6 @@ class ToDoListViewController: UITableViewController
         let action = UIAlertAction(title: "Add Item", style: .default)
         {  (action) in
             
-            
-            
             let newItem = ToDoItem(context: self.dataContext);
             
             newItem.title = textField.text! ;
@@ -127,31 +125,55 @@ class ToDoListViewController: UITableViewController
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     func saveItems()
     {
-        do
-        {
-            try dataContext.save() ;
-        }
-        catch
-        {
-            print ("error saving context, \(error)");
-        }
+        do { try dataContext.save() ;}
+        catch { print ("error saving context, \(error)");}
+        
         self.tableView.reloadData();
     }
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
-    func loadItems()
+    func loadItems(with request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest())
     {
-        let request : NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest();
-        do
-        {
-            itemArray = try dataContext.fetch(request);
-        }
-        catch
-        {
-            print ("error loading from the context , \(error)");
-        }
-    
+        do  { itemArray = try dataContext.fetch(request); }
+        catch  { print ("error fetching data from the context , \(error)");}
+        
+        tableView.reloadData();
     }
+
+    
+    
     
 }// * * * * * * * * * * * *  end class
 
+////////////////////////////////////////////////
+//MARK: - Search Functions
+////////////////////////////////////////////////
+
+// * * * * * * * * * * * *  Begin Extension
+extension ToDoListViewController: UISearchBarDelegate
+{
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
+    {
+        print ( "searchBarSearchButtonClicked" );
+        print ( searchBar.text!);
+        
+        let request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest();
+        
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!);
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)];
+        
+        loadItems(with: request);
+    }
+    
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
+    {
+        if (searchBar.text?.count == 0)
+        {
+            loadItems();
+            DispatchQueue.main.async { searchBar.resignFirstResponder(); }
+        }
+    }
+    
+}// * * * * * * * *  end Extension
