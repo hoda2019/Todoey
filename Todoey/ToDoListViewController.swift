@@ -15,6 +15,9 @@ class ToDoListViewController: UITableViewController
 {
     // % % % % % % % % % % % % % % % %
     var itemArray = [ToDoItem]();
+    var selectedCategory: Category? { didSet { loadItems() } }
+    
+    @IBOutlet weak var navItem: UINavigationItem! // for the title of the page
     
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
 
@@ -26,8 +29,7 @@ class ToDoListViewController: UITableViewController
         super.viewDidLoad()
        
         //print (dataFilePath) ;
-        
-        loadItems();
+        //loadItems();
     }
 
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
@@ -100,6 +102,7 @@ class ToDoListViewController: UITableViewController
             
             newItem.title = textField.text! ;
             newItem.completed = false ;
+            newItem.parentCategory = self.selectedCategory;
             
             self.itemArray.append(newItem);
         
@@ -125,15 +128,27 @@ class ToDoListViewController: UITableViewController
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     func saveItems()
     {
-        do { try dataContext.save() ;}
-        catch { print ("error saving context, \(error)");}
+        do { try dataContext.save() }
+        catch { print ("error saving context, \(error)")}
         
-        self.tableView.reloadData();
+        self.tableView.reloadData()
     }
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
-    func loadItems(with request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest())
+    func loadItems(with request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest(), predicate: NSPredicate? = nil)
     {
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        // combines the search predictate (if it exists) to the category predicate 
+        if let searchPredicate = predicate
+        {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, searchPredicate])
+        }
+        else
+        {
+            request.predicate = categoryPredicate
+        }
+        
         do  { itemArray = try dataContext.fetch(request); }
         catch  { print ("error fetching data from the context , \(error)");}
         
@@ -155,15 +170,15 @@ extension ToDoListViewController: UISearchBarDelegate
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
-        print ( "searchBarSearchButtonClicked" );
-        print ( searchBar.text!);
+       //print ( "searchBarSearchButtonClicked" );
+       //print ( searchBar.text!);
         
         let request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest();
-        
-        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!);
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!);
+    
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)];
         
-        loadItems(with: request);
+        loadItems(with: request, predicate: predicate);
     }
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
