@@ -8,7 +8,7 @@
 
 import UIKit
 import RealmSwift
-
+import ChameleonFramework
 
 // * * * * * * * * * * * * * * * * * * * * * * * * begin class
 class ToDoListViewController: SwipeTableViewController
@@ -16,6 +16,7 @@ class ToDoListViewController: SwipeTableViewController
     // % % % % % % % % % % % % % % % %
     var toDoItemList : Results <ToDoItem>?
     @IBOutlet weak var navItem: UINavigationItem! // for the title of the page
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var selectedCategory: Category?
     {
@@ -31,8 +32,40 @@ class ToDoListViewController: SwipeTableViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        
+        navItem.title = selectedCategory?.name ?? "NewList"
+        
     }
-
+     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    override func viewWillAppear(_ animated: Bool)
+    {
+        guard let colHex = selectedCategory?.color else { (fatalError ("Category does not exist!")) }
+        updateNavBar(withHexCode: colHex)
+    }
+    
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    override func viewWillDisappear(_ animated: Bool)
+    {
+        updateNavBar(withHexCode: "7FA8E6")
+    }
+    
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    func updateNavBar(withHexCode colorHexCode: String)
+    {
+        guard let navBar = navigationController?.navigationBar else
+        { fatalError ("Navigation controller does not exist!") }
+        
+        guard let navBarColor = UIColor(hexString: colorHexCode) else
+        { fatalError ("Color does not exist!") }
+        
+        searchBar.barTintColor = navBarColor
+        navBar.barTintColor = navBarColor
+        navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+        navBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor:
+            ContrastColorOf(navBarColor, returnFlat: true)]
+        
+    }
+    
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     override func didReceiveMemoryWarning()
     {
@@ -71,6 +104,14 @@ class ToDoListViewController: SwipeTableViewController
             if (currentItem.completed == true)  { cell.accessoryType = .checkmark}
             else {  cell.accessoryType = .none  }
             cell.accessoryType = currentItem.completed ? .checkmark: .none;
+            
+            if let basecolor = UIColor(hexString: selectedCategory?.color ?? "7FA8E6")
+            {
+                let newcolor = basecolor.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(toDoItemList!.count))
+                cell.backgroundColor = newcolor
+                cell.textLabel?.textColor = ContrastColorOf(newcolor!, returnFlat: true)
+            }
+            
         }
         else
         {

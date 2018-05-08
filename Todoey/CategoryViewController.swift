@@ -8,7 +8,7 @@
 
 import UIKit
 import RealmSwift
-import SwipeCellKit
+import ChameleonFramework
 
 // * * * * * * * * * * * * * * * * * * * * * * * * begin class
 class CategoryViewController: SwipeTableViewController
@@ -21,8 +21,8 @@ class CategoryViewController: SwipeTableViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
-      
         loadCategories()
+        
     }
 
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
@@ -92,9 +92,14 @@ class CategoryViewController: SwipeTableViewController
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        
+        if let category = categoryArray?[indexPath.row]
+        {
+            cell.textLabel?.text = category.name
+            cell.backgroundColor = UIColor(hexString: category.color)
+            cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)
+        }
 
-        cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Yet";
-    
         return cell
     }
 
@@ -118,6 +123,7 @@ class CategoryViewController: SwipeTableViewController
             
             let newCategory = Category()
             newCategory.name = textField.text!
+            newCategory.color =  UIColor.randomFlat.hexValue()
         
             self.save(category: newCategory)
         }
@@ -156,7 +162,7 @@ class CategoryViewController: SwipeTableViewController
         if let indexpath = tableView.indexPathForSelectedRow
         {
             destinationVC.selectedCategory = categoryArray?[indexpath.row]
-            destinationVC.navItem.title = categoryArray?[indexpath.row].name ?? "NewList"
+   
         }
     }
     

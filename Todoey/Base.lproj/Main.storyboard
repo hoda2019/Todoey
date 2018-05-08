@@ -81,7 +81,6 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="TO DO LIST" id="EYX-4O-ofh">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="rKl-Dw-Ae5">
-                            <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             <connections>
                                 <action selector="addButtonPressed:" destination="slX-LS-tb7" id="8J8-oh-Z8M"/>
                             </connections>
@@ -89,6 +88,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="navItem" destination="EYX-4O-ofh" id="MLZ-Gb-9MO"/>
+                        <outlet property="searchBar" destination="1zf-4H-gHs" id="3Mg-FV-mAv"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x4b-Rv-ibZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -100,14 +100,11 @@
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="LCG-fl-NFv" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="734-ME-GPr">
-                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="734-ME-GPr">
+                        <rect key="frame" x="0.0" y="20" width="375" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="barTintColor" red="0.49930474209999998" green="0.65957560520000003" blue="0.90168940360000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="barTintColor" red="0.49803921568627452" green="0.6588235294117647" blue="0.90196078431372551" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <textAttributes key="titleTextAttributes">
-                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                        </textAttributes>
-                        <textAttributes key="largeTitleTextAttributes">
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         </textAttributes>
                     </navigationBar>
