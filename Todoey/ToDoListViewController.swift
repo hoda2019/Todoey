@@ -11,7 +11,7 @@ import RealmSwift
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * begin class
-class ToDoListViewController: UITableViewController
+class ToDoListViewController: SwipeTableViewController
 {
     // % % % % % % % % % % % % % % % %
     var toDoItemList : Results <ToDoItem>?
@@ -60,7 +60,9 @@ class ToDoListViewController: UITableViewController
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + - cellForRowAt
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+    
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+  
         
         if let currentItem = toDoItemList?[indexPath.row]
         {
@@ -143,6 +145,22 @@ class ToDoListViewController: UITableViewController
 
         alert.addAction(action);
         present (alert, animated: true, completion: nil)
+        
+    }
+// + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    override func updateModel(at indexPath: IndexPath)
+    {
+        if let currentItem = self.toDoItemList?[indexPath.row]
+        {
+            do
+            {
+                try self.realm.write
+                {
+                    self.realm.delete(currentItem)
+                }
+            }
+            catch { print ("error deleting to do item, \(error)")}
+        }
         
     }
     
