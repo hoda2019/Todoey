@@ -49,12 +49,7 @@ class CategoryViewController: SwipeTableViewController
                 realm.add(category)
             }
         }
-            
-        catch
-        {
-            print ("error saving into realm \(error)")
-            
-        }
+        catch { print ("error saving into realm \(error)") }
         
         tableView.reloadData()
     }
@@ -73,10 +68,7 @@ class CategoryViewController: SwipeTableViewController
             }
             catch { print ("error deleting category, \(error)") }
         }
-        
     }
-    
-    
     
     ////////////////////////////////////////////////
     //MARK: - tableView DataSource Methods
@@ -91,8 +83,10 @@ class CategoryViewController: SwipeTableViewController
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
+        // superclass creates cell with swipable features
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
+        // this class puts data info into the cell
         if let category = categoryArray?[indexPath.row]
         {
             cell.textLabel?.text = category.name
@@ -103,7 +97,6 @@ class CategoryViewController: SwipeTableViewController
         return cell
     }
 
- 
     ////////////////////////////////////////////////
     //MARK: - tableView Add new category
     ////////////////////////////////////////////////
@@ -143,7 +136,7 @@ class CategoryViewController: SwipeTableViewController
     }
     
     ////////////////////////////////////////////////
-    //MARK: - tableView Delegate Methods
+    //MARK: - tableView Delegate Methods - SEGUE
     ////////////////////////////////////////////////
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
@@ -157,16 +150,12 @@ class CategoryViewController: SwipeTableViewController
     {
         let destinationVC = segue.destination as! ToDoListViewController
        
-        // if we have a row selected
-        // set the category and the title of the item view controller
+        // if we have a row selected, set the category of the item view controller
         if let indexpath = tableView.indexPathForSelectedRow
         {
             destinationVC.selectedCategory = categoryArray?[indexpath.row]
-   
         }
     }
-    
-    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     
 }// * * * * * * * * * * * *  end class
 

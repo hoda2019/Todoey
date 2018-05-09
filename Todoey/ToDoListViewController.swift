@@ -32,10 +32,9 @@ class ToDoListViewController: SwipeTableViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        
         navItem.title = selectedCategory?.name ?? "NewList"
-        
     }
+    
      // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
     override func viewWillAppear(_ animated: Bool)
     {
@@ -63,7 +62,6 @@ class ToDoListViewController: SwipeTableViewController
         navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
         navBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor:
             ContrastColorOf(navBarColor, returnFlat: true)]
-        
     }
     
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
@@ -76,7 +74,6 @@ class ToDoListViewController: SwipeTableViewController
     func loadItems()
     {
         toDoItemList = selectedCategory?.toDoItems.sorted(byKeyPath: "title", ascending: true)
-        
         tableView.reloadData();
     }
 
@@ -93,30 +90,28 @@ class ToDoListViewController: SwipeTableViewController
     // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + - cellForRowAt
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-    
+        // superclass sets the swipeable features
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
   
-        
-        if let currentItem = toDoItemList?[indexPath.row]
+        //this class sets the cell information and color
+        if let currentItem = toDoItemList?[indexPath.row] // if the item exists
         {
             cell.textLabel?.text = currentItem.title;
             
-            if (currentItem.completed == true)  { cell.accessoryType = .checkmark}
-            else {  cell.accessoryType = .none  }
+            //if (currentItem.completed == true)  { cell.accessoryType = .checkmark}
+            //else {  cell.accessoryType = .none  }
             cell.accessoryType = currentItem.completed ? .checkmark: .none;
             
+            //if we can create a color based on the hex string
+            // set the gradation percent and the text color
             if let basecolor = UIColor(hexString: selectedCategory?.color ?? "7FA8E6")
             {
                 let newcolor = basecolor.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(toDoItemList!.count))
                 cell.backgroundColor = newcolor
                 cell.textLabel?.textColor = ContrastColorOf(newcolor!, returnFlat: true)
             }
-            
         }
-        else
-        {
-            cell.textLabel?.text = "No Items Yet"
-        }
+        else { cell.textLabel?.text = "No Items Yet" }
         
         return cell;
     }
@@ -134,7 +129,6 @@ class ToDoListViewController: SwipeTableViewController
                 try self.realm.write
                 {
                     currentItem.completed = !currentItem.completed;
-                    //realm.delete(currentItem)
                 }
             }
             catch { print ("error updating completion, \(error)")}
@@ -202,7 +196,6 @@ class ToDoListViewController: SwipeTableViewController
             }
             catch { print ("error deleting to do item, \(error)")}
         }
-        
     }
     
 }// * * * * * * * * * * * *  end class
