@@ -76,6 +76,27 @@ class ToDoListViewController: SwipeTableViewController
         toDoItemList = selectedCategory?.toDoItems.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData();
     }
+    
+    // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + -
+    func saveItems(text:String)
+    {
+        if let currentCategory = self.selectedCategory
+        {
+            do {
+                try self.realm.write
+                {
+                    let newItem = ToDoItem();
+                    newItem.title = text ;
+                    newItem.dateCreated = Date();
+                    self.realm.add(newItem)
+                    currentCategory.toDoItems.append(newItem)
+                }
+            }
+            catch { print ("error saving into realm, \(error)")}
+            
+            self.tableView.reloadData()
+        }
+    }
 
     ////////////////////////////////////////////////
     //MARK: - tableView DataSource Methods
@@ -153,22 +174,7 @@ class ToDoListViewController: SwipeTableViewController
         let action = UIAlertAction(title: "Add Item", style: .default)
         {  (action) in
 
-            if let currentCategory = self.selectedCategory
-            {
-                do {
-                    try self.realm.write
-                    {
-                        let newItem = ToDoItem();  
-                        newItem.title = textField.text! ;
-                        newItem.dateCreated = Date();
-                        self.realm.add(newItem)
-                        currentCategory.toDoItems.append(newItem)
-                    }
-                }
-                catch { print ("error saving into realm, \(error)")}
-                
-                self.tableView.reloadData()
-            }
+            self.saveItems(text: textField.text!)
         }
 
         alert.addTextField
